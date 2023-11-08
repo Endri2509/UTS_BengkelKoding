@@ -1,81 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Bootstrap Online -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" 
-    rel="stylesheet" 
-    crossorigin="anonymous">
-    <title>Home</title> <!--Judul Halaman-->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+  <title>Poliklinik</title>
 </head>
-<body> <!-- Bagian <body> dimulai di sini -->
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="#">
-      Sistem Informasi Poliklinik
-    </a>
-    <button class="navbar-toggler"
-    type="button" data-bs-toggle="collapse"
-    data-bs-target="#navbarNavDropdown"
-    aria-controls="navbarNavDropdown" aria-expanded="false"
-    aria-label="Toggle navigation">
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNavDropdown">
-      <ul class="navbar-nav">
-        <li class="nav-item">
-          <a class="nav-link" aria-current="page" href="index.php">
-            Home
-          </a>
-        </li>
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" role="button"
-          data-bs-toggle="dropdown" aria-expanded="false">
-            Data Master
-          </a>
-          <ul class="dropdown-menu">
-            <li>
-              <a class="dropdown-item" href="index.php?page=dokter">
-                Dokter
-              </a>
-            </li>
-            <li>
-              <a class="dropdown-item" href="index.php?page=pasien">
-                Pasien
-              </a>
-            </li>
-          </ul>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" 
-          href="index.php?page=periksa">
-            Periksa
-          </a>
-        </li>
-      </ul>
-    </div>
-  </div>
-</nav>
+<style>
+  .header-background {
+    padding-top: 250px;
+    padding-bottom: 250px;
+    color: black;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+  }
+</style>
 
-<main role="main" class="container">
+<body>
+<?php 
+include ('navbar.php');
+?>  
+  <main role="main" class="container">
     <?php
-    if (isset($_GET['page'])) {
-    ?>
-        <h2><?php echo ucwords($_GET['page']) ?></h2>
-    <?php
-        include($_GET['page'] . ".php");
-    } else {
-        echo "Selamat Datang di Sistem Informasi Poliklinik";
-    }
-    ?>
-</main>
+      if (isset($_GET['page'])) {
+      ?>
+          <h2 class="text-center my-3"><?php echo ucwords($_GET['page']) ?></h2>
+      <?php
+          include($_GET['page'] . ".php");
+      } else {?>
+       
+    </main>
+      <!-- Header start -->
+      <div class="container-fluid header-background text-center">
+        <h5>Selamat Datang</h5>
+        <h1 class="display-4 text-yellow">SISTEM INFORMASI POLIKLINIK</h1>
+      </div>
+      <!-- Header End -->
 
-<!-- Masukkan JavaScript Bootstrap dan jQuery di sini -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js" 
- crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" 
- crossorigin="anonymous"></script>
+      <?php
+      }
+      ?>
+      
+</body>
 
-</body> <!-- Bagian <body> diakhiri di sini -->
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js" integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+" crossorigin="anonymous"></script>
+
 </html>

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 06, 2023 at 04:29 PM
+-- Generation Time: Nov 06, 2023 at 03:05 PM
 -- Server version: 10.4.28-MariaDB
 -- PHP Version: 8.2.4
 
@@ -39,8 +39,8 @@ CREATE TABLE `dokter` (
 --
 
 INSERT INTO `dokter` (`id`, `nama`, `alamat`, `no_hp`) VALUES
-(1, 'NOVA ADRIAN', 'jakarta', '12345678909'),
-(3, 'endrianus', 'magersari', '09876524252');
+(35, 'aku', 'jawa', '0899877654'),
+(36, 'aileen', 'magersari', '00000000');
 
 -- --------------------------------------------------------
 
@@ -60,8 +60,8 @@ CREATE TABLE `pasien` (
 --
 
 INSERT INTO `pasien` (`id`, `nama`, `alamat`, `no_hp`) VALUES
-(2, 'bogok', 'blora', '0899877654'),
-(4, 'NOVA ADRIAN', 'blora', '09876524252');
+(14, 'bogok', 'blora', '09876524252'),
+(15, 'NOVA ADRIAN', 'jakarta', '00000000');
 
 -- --------------------------------------------------------
 
@@ -74,15 +74,29 @@ CREATE TABLE `periksa` (
   `id_dokter` int(11) NOT NULL,
   `id_pasien` int(11) NOT NULL,
   `tgl_periksa` date DEFAULT NULL,
-  `catatan` text DEFAULT NULL
+  `catatan` text DEFAULT NULL,
+  `obat` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `periksa`
 --
 
-INSERT INTO `periksa` (`id`, `id_dokter`, `id_pasien`, `tgl_periksa`, `catatan`) VALUES
-(3, 1, 2, '2023-10-21', 'pileks');
+INSERT INTO `periksa` (`id`, `id_dokter`, `id_pasien`, `tgl_periksa`, `catatan`, `obat`) VALUES
+(20, 35, 15, '2023-10-13', 'pilek', ''),
+(21, 36, 14, '2023-10-12', 'panas', '');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `user`
+--
+
+CREATE TABLE `user` (
+  `id` int(11) NOT NULL,
+  `username` varchar(50) NOT NULL,
+  `password` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Indexes for dumped tables
@@ -109,6 +123,12 @@ ALTER TABLE `periksa`
   ADD KEY `id_pasien` (`id_pasien`);
 
 --
+-- Indexes for table `user`
+--
+ALTER TABLE `user`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- AUTO_INCREMENT for dumped tables
 --
 
@@ -116,19 +136,25 @@ ALTER TABLE `periksa`
 -- AUTO_INCREMENT for table `dokter`
 --
 ALTER TABLE `dokter`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
 
 --
 -- AUTO_INCREMENT for table `pasien`
 --
 ALTER TABLE `pasien`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT for table `periksa`
 --
 ALTER TABLE `periksa`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
+
+--
+-- AUTO_INCREMENT for table `user`
+--
+ALTER TABLE `user`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- Constraints for dumped tables

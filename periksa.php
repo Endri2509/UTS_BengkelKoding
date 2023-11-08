@@ -1,162 +1,168 @@
-<?php
-$mysqli = mysqli_connect("localhost", "root", "", "poliklinik");
-if (!$mysqli) {
-    die("Koneksi ke database gagal: " . mysqli_connect_error());
+
+<?php 
+$page="Periksa";
+
+// Memeriksa apakah pengguna sudah login, jika tidak, arahkan kembali ke halaman login
+if(!isset($_SESSION["username"])){
+    header("location: index.php?page=loginUser");
+    exit;
 }
-
-if (isset($_POST['simpan'])) {
-    $id = $_POST['id'];
-    $id_dokter = $_POST['id_dokter'];
-    $id_pasien = $_POST['id_pasien'];
-    $tgl_periksa = $_POST['tgl_periksa'];
-    $catatan = $_POST['catatan'];
-
-    // Cek apakah ini operasi tambah data atau edit data berdasarkan apakah ada nilai ID yang dikirim
-    if (empty($id)) {
-        // Jika ID kosong, maka ini operasi tambah data
-        $query = "INSERT INTO periksa (id_dokter, id_pasien, tgl_periksa, catatan) VALUES ('$id_dokter', '$id_pasien', '$tgl_periksa', '$catatan')";
-    } else {
-        // Jika ID ada, maka ini operasi edit data
-        $query = "UPDATE periksa SET id_dokter='$id_dokter', id_pasien='$id_pasien', tgl_periksa='$tgl_periksa', catatan='$catatan' WHERE id='$id'";
-    }
-
-    $result = mysqli_query($mysqli, $query);
-
-    if ($result) {
-        header("Location: periksa.php"); // Redirect ke halaman periksa setelah berhasil
-        exit();
-    } else {
-        echo "Error: " . mysqli_error($mysqli);
-    }
-}
-
-if (isset($_GET['aksi']) && $_GET['aksi'] == 'hapus' && isset($_GET['id'])) {
-    $id = $_GET['id'];
-    $query = "DELETE FROM periksa WHERE id='$id'";
-    $result = mysqli_query($mysqli, $query);
-
-    if ($result) {
-        header("Location: periksa.php"); // Redirect ke halaman periksa setelah berhasil menghapus data
-        exit();
-    } else {
-        echo "Error: " . mysqli_error($mysqli);
-    }
-}
-
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Bootstrap Online -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
-    crossorigin="anonymous">
-    <title>Periksa</title>
-</head>
-
-<body>
-    <div class="container">
-
-        <!-- Form Input Data Periksa -->
-        <form class="form" method="POST" action="proses_periksa.php">
-            <?php
-            $id = '';
-            $id_dokter = '';
-            $id_pasien = '';
-            $tgl_periksa = '';
-            $catatan = '';
-
-            if (isset($_GET['id'])) {
-                $ambil = mysqli_query($mysqli, "SELECT * FROM periksa WHERE id='" . $_GET['id'] . "'");
-                while ($row = mysqli_fetch_array($ambil)) {
-                    $id = $row['id'];
-                    $id_dokter = $row['id_dokter'];
-                    $id_pasien = $row['id_pasien'];
-                    $tgl_periksa = $row['tgl_periksa'];
-                    $catatan = $row['catatan'];
-                }
+<!-- FORM -->
+<div class="form-group mx-sm-3 mb-2">
+    <form action="" onsubmit="return(validate());" method="post">
+    <!-- AMBIL DATA UNTUK UBAH -->
+        <?php
+        include ('koneksi.php');
+        $id_pasien = '';
+        $id_dokter = '';
+        $tgl_periksa = '';
+        $catatan = '';
+        $obat = '';
+        if (isset($_GET['id'])) {
+            $ambil = mysqli_query($mysqli, 
+            "SELECT * FROM periksa 
+            WHERE id='" . $_GET['id'] . "'");
+            while ($row = mysqli_fetch_array($ambil)) {
+                $id_pasien = $row['id_pasien'];
+                $id_dokter = $row['id_dokter'];
+                $tgl_periksa = $row['tgl_periksa'];
+                $catatan = $row['catatan'];
+                $obat = $row['obat'];
             }
-            ?>
+        ?>
+            <input type=hidden name="id" value="<?php echo
+            $_GET['id'] ?>">
+        <?php
+        }
+        ?>
+    <!-- SELECT PASIEN -->
+        <label class="fw-bold">Pasien</label>
+       <select class="form-control my-2" name="id_pasien">
+           <?php
+           include ('koneksi.php');
+           $selected = '';
+           $periksa = mysqli_query($mysqli, "SELECT * FROM pasien");
+           while ($data = mysqli_fetch_array($periksa)) {
+               if ($data['id'] == $id_pasien) {
+                   $selected = 'selected="selected"';
+               } else {
+                   $selected = '';
+               }
+           ?>
+               <option value="<?php echo $data['id'] ?>"  <?php echo $selected?>> <?php echo $data['nama'] ?></option>
+           <?php
+           }
+           ?>
+       </select>
+    <!-- SELECT DOKTER -->
+       <label class="fw-bold">Dokter</label>
+       <select class="form-control my-2" name="id_dokter">
+           <?php
+           include ('koneksi.php');
+           $selected = '';
+           $dokter = mysqli_query($mysqli, "SELECT * FROM dokter");
+           while ($data = mysqli_fetch_array($dokter)) {
+               if ($data['id'] == $id_dokter) {
+                   $selected = 'selected="selected"';
+               } else {
+                   $selected = '';
+               }
+           ?>
+               <option value="<?php echo $data['id'] ?>"  <?php echo $selected ?>><?php echo $data['nama'] ?></option>
+           <?php
+           }
+           ?>
+       </select>
+    <!-- COLOM INSERT DATETIME DAN TEXT -->
+       <label class="fw-bold">Tanggal Periksa</label>
+       <input type="datetime-local" name="tgl_periksa" value="<?php echo $tgl_periksa ?>" class="form-control my-2"  required>
+       
+       <label class="fw-bold">Catatan</label>
+       <input type="text" class="form-control my-2" name="catatan"  value="<?php echo $catatan ?>"> 
+       
+       <label  class="fw-bold">Obat</label>
+       <input type="text" class="form-control my-2" name="obat"  value="<?php echo $obat ?>"> 
 
-            <input type="hidden" name="id" value="<?php echo $id ?>">
+       <button class="btn btn-primary" type="submit" name="simpan" >Submit</button>
+    </form>
 
-            <div class="form-group">
-                <label for="inputDokter" class="fw-bold">Dokter</label>
-                <select class="form-control" name="id_dokter" id="inputDokter">
-                    <?php
-                    $dokter_result = mysqli_query($mysqli, "SELECT * FROM dokter");
-                    while ($dokter_data = mysqli_fetch_array($dokter_result)) {
-                        $selected = ($id_dokter == $dokter_data['id']) ? "selected" : "";
-                        echo "<option value='" . $dokter_data['id'] . "' $selected>" . $dokter_data['nama'] . "</option>";
-                    }
-                    ?>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label for="inputPasien" class="fw-bold">Pasien</label>
-                <select class="form-control" name="id_pasien" id="inputPasien">
-                    <?php
-                    $pasien_result = mysqli_query($mysqli, "SELECT * FROM pasien");
-                    while ($pasien_data = mysqli_fetch_array($pasien_result)) {
-                        $selected = ($id_pasien == $pasien_data['id']) ? "selected" : "";
-                        echo "<option value='" . $pasien_data['id'] . "' $selected>" . $pasien_data['nama'] . "</option>";
-                    }
-                    ?>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label for="inputTglPeriksa" class="fw-bold">Tanggal Periksa</label>
-                <input type="datetime-local" class="form-control" name="tgl_periksa" id="inputTglPeriksa" value="<?php echo $tgl_periksa ?>">
-            </div>
-
-            <div class="form-group">
-                <label for="inputCatatan" class="fw-bold">Catatan</label>
-                <textarea class="form-control" name="catatan" id="inputCatatan" placeholder="Catatan"><?php echo $catatan ?></textarea>
-            </div>
-
-            <div class="form-group mt-3">
-                <button type="submit" class="btn btn-primary rounded-pill px-3" name="simpan">Simpan</button>
-            </div>
-        </form>
-
-        <!-- Tabel Daftar Periksa -->
-        <table class="table mt-4">
+    <!-- TABLE -->
+    <div class="table-responsive">
+        <table class="table">
             <thead>
                 <tr>
-                    <th>#</th>
-                    <th>Nama Pasien</th>
-                    <th>Nama Dokter</th>
-                    <th>Tanggal Periksa</th>
-                    <th>Catatan</th>
-                    <th>Aksi</th>
+                <th scope="col">No</th>
+                <th scope="col">Nama</th>
+                <th scope="col">Dokter</th>
+                <th scope="col">Tanggal Periksa</th>
+                <th scope="col">Catatan</th>
+                <th scope="col">Obat</th>
+                <th scope="col">Aksi</th>
                 </tr>
             </thead>
-            <tbody>
-                <?php
-                $result = mysqli_query($mysqli, "SELECT periksa.id, pasien.nama AS nama_pasien, dokter.nama AS nama_dokter, periksa.tgl_periksa, periksa.catatan FROM periksa LEFT JOIN pasien ON periksa.id_pasien = pasien.id LEFT JOIN dokter ON periksa.id_dokter = dokter.id");
-                $no = 1;
-                while ($data = mysqli_fetch_array($result)) {
-                ?>
-                    <tr>
-                        <td><?php echo $no++ ?></td>
-                        <td><?php echo $data['nama_pasien'] ?></td>
-                        <td><?php echo $data['nama_dokter'] ?></td>
-                        <td><?php echo $data['tgl_periksa'] ?></td>
-                        <td><?php echo $data['catatan'] ?></td>
-                        <td>
-                            <a class="btn btn-success rounded-pill px-3" href="periksa.php?id=<?php echo $data['id'] ?>">Ubah</a>
-                            <a class="btn btn-danger rounded-pill px-3" href="proses_periksa.php?id=<?php echo $data['id'] ?>&aksi=hapus">Hapus</a>
-                        </td>
-                    </tr>
-                <?php
-                }
-                ?>
-            </tbody>
+            <?php
+            include ('koneksi.php');
+            date_default_timezone_set("Asia/Jakarta");
+            $result = mysqli_query($mysqli, "SELECT pr.*,d.nama as 'nama_dokter', p.nama as 'nama_pasien' FROM periksa pr LEFT JOIN dokter d ON (pr.id_dokter=d.id) LEFT JOIN pasien p ON (pr.id_pasien=p.id) ORDER BY pr.tgl_periksa ASC");
+            $no = 1;
+            while ($data = mysqli_fetch_array($result)) {
+            ?>
+                <tr>
+                    <td><?php echo $no++ ?></td>
+                    <td><?php echo $data['nama_pasien'] ?></td>
+                    <td><?php echo $data['nama_dokter'] ?></td>
+                    <td><?php echo date('d-M-Y H:i:s', strtotime ($data['tgl_periksa']))  ?></td>
+                    <td><?php echo $data['catatan'] ?></td>
+                    <td><?php echo $data['obat'] ?></td>
+                    <td>
+                        <a class="btn btn-success rounded-pill px-3" 
+                        href="index.php?page=periksa&id=<?php echo $data['id'] ?>">
+                        Ubah</a>
+                        <a class="btn btn-danger rounded-pill px-3" 
+                        href="index.php?page=periksa&id=<?php echo $data['id'] ?>&aksi=hapus">Hapus</a>
+                    </td>
+                </tr>
+            <?php
+            }
+            ?>
         </table>
     </div>
-</body>
-</html>
+</div>
+
+<!-- FUNGSI CRUD -->
+<?php
+include ('koneksi.php');
+if (isset($_POST['simpan'])) {
+    $id_pasien = $_POST['id_pasien'];
+    $id_dokter = $_POST['id_dokter'];
+    $tgl_periksa = $_POST['tgl_periksa'];
+    $catatan = $_POST['catatan'];
+    $obat = $_POST['obat'];
+    if (isset($_POST['id'])) {
+        $sql = "UPDATE periksa SET id_pasien='$id_pasien',id_dokter='$id_dokter',tgl_periksa='$tgl_periksa',catatan = '$catatan',obat = '$obat' WHERE id = ". $_POST['id']."";
+    } else {
+        $sql = "INSERT INTO periksa (id_pasien,id_dokter,tgl_periksa,catatan,obat) VALUES ('$id_pasien','$id_dokter','$tgl_periksa','$catatan','$obat')";
+    }
+        
+    if ($mysqli->query($sql) == TRUE)
+    { echo "<script> 
+        document.location='index.php?page=periksa';
+        </script>";}
+    else
+    {echo "Error: " . $sql . "<br>" . $mysqli->error;}
+    $mysqli->close();
+}
+
+if (isset($_GET['aksi'])) {
+    if ($_GET['aksi'] == 'hapus') {
+        $hapus = mysqli_query($mysqli, "DELETE FROM periksa WHERE id = '" . $_GET['id'] . "'");
+    }
+
+    echo "<script> 
+            alert('Data Berhasil Dihapus');
+            document.location='index.php?page=periksa';
+            </script>";
+}
+?>

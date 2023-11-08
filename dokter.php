@@ -1,99 +1,128 @@
-<?php
-$mysqli = mysqli_connect("localhost", "root", "", "poliklinik");
-if (!$mysqli) {
-    die("Koneksi ke database gagal: " . mysqli_connect_error());
+<?php 
+$page = "Dokter";
+
+// Memeriksa apakah pengguna sudah login, jika tidak, arahkan kembali ke halaman login
+if(!isset($_SESSION["username"])){
+    header("location: index.php?page=loginUser");
+    exit;
 }
 ?>
 
+<form class="form row" method="POST" action="" name="myForm" onsubmit="return(validate());">
+    <!-- Kode php untuk menghubungkan form dengan database -->
+    <?php
+    include ('koneksi.php');
+    $nama = '';
+    $alamat = '';
+    $no_hp = '';
+    if (isset($_GET['id'])) {
+        $ambil = mysqli_query($mysqli, 
+        "SELECT * FROM dokter 
+        WHERE id='" . $_GET['id'] . "'");
+        while ($row = mysqli_fetch_array($ambil)) {
+            $nama = $row['nama'];
+            $alamat = $row['alamat'];
+            $no_hp = $row['no_hp'];
+        }
+    ?>
+        <input type="hidden" name="id" value="<?php echo
+        $_GET['id'] ?>">
+    <?php
+    }
+    ?>
+    <div>
+        <label class="form-label fw-bold">
+            Nama
+        </label>
+        <input type="text" class="form-control my-2" name="nama" value="<?php echo $nama ?>">
+        <label class="form-label fw-bold">
+            Alamat
+        </label>
+        <input type="text" class="form-control my-2" name="alamat" value="<?php echo $alamat ?>">
+        <label class="form-label fw-bold">
+        No HP
+        </label>
+        <input type="text" class="form-control my-2" name="no_hp" value="<?php echo $no_hp ?>">
+        <button type="submit" class="btn btn-primary rounded-pill px-3" name="simpan">Simpan</button>
+  </div>
+</form>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Bootstrap Online -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" 
-    rel="stylesheet" 
-    crossorigin="anonymous">
-    <title>Dokter</title>
-</head>
-
-<body>
-    <div class="container">
-
-        <!-- Form Input Data Dokter -->
-        <form class="mt-3" method="POST" action="proses_dokter.php">
+<!-- Table-->
+<div class="table-responsive">
+    <table class="table table-hover">
+        <!--thead atau baris judul-->
+        <thead>
+            <tr>
+                <th scope="col">No</th>
+                <th scope="col">Kegiatan</th>
+                <th scope="col">Awal</th>
+                <th scope="col">Akhir</th>
+                <th scope="col">Aksi</th>
+            </tr>
+        </thead>
+        <!--tbody berisi isi tabel sesuai dengan judul atau head-->
+        <tbody>
+            <!-- Kode PHP untuk menampilkan semua isi dari tabel urut
+            berdasarkan status dan tanggal awal-->
             <?php
-            $id = '';
-            $nama = '';
-            $alamat = '';
-            $no_hp = '';
-
-            if (isset($_GET['id'])) {
-                $ambil = mysqli_query($mysqli, "SELECT * FROM dokter WHERE id='" . $_GET['id'] . "'");
-                while ($row = mysqli_fetch_array($ambil)) {
-                    $id = $row['id'];
-                    $nama = $row['nama'];
-                    $alamat = $row['alamat'];
-                    $no_hp = $row['no_hp'];
-                }
+            $result = mysqli_query(
+                $mysqli,"SELECT * FROM dokter ORDER BY nama DESC"
+                );
+            $no = 1;
+            while ($data = mysqli_fetch_array($result)) {
+            ?>
+                <tr>
+                    <th scope="row"><?php echo $no++ ?></th>
+                    <td><?php echo $data['nama'] ?></td>
+                    <td><?php echo $data['alamat'] ?></td>
+                    <td><?php echo "0".$data['no_hp'] ?></td>
+                    <td>
+                        <a class="btn btn-success rounded-pill px-3" 
+                        href="index.php?page=dokter&id=<?php echo $data['id'] ?>">Ubah
+                        </a>
+                        <a class="btn btn-danger rounded-pill px-3" 
+                        href="index.php?page=dokter&id=<?php echo $data['id'] ?>&aksi=hapus">Hapus
+                        </a>
+                    </td>
+                </tr>
+            <?php
             }
             ?>
+        </tbody>
+    </table>
+</div>
 
-            <input type="hidden" name="id" value="<?php echo $id ?>">
+<?php
+include ('koneksi.php');
+if (isset($_POST['simpan'])) {
+    if (isset($_POST['id'])) {
+        $ubah = mysqli_query($mysqli, "UPDATE dokter SET 
+                                        nama = '" . $_POST['nama'] . "',
+                                        alamat = '" . $_POST['alamat'] . "',
+                                        no_hp = '" . $_POST['no_hp'] . "'
+                                        WHERE
+                                        id = '" . $_POST['id'] . "'");
+    } else {
+        $tambah = mysqli_query($mysqli, "INSERT INTO dokter(nama,alamat,no_hp) 
+                                        VALUES ( 
+                                            '" . $_POST['nama'] . "',
+                                            '" . $_POST['alamat'] . "',
+                                            '" . $_POST['no_hp'] . "'
+                                            )");
+    }
 
-            <div class="form-group">
-                <label for="inputNama" class="fw-bold">Nama Dokter</label>
-                <input type="text" class="form-control" name="nama" id="inputNama" placeholder="Nama Dokter" value="<?php echo $nama ?>">
-            </div>
+    echo "<script> 
+            document.location='index.php?page=dokter';
+            </script>";
+}
 
-            <div class="form-group">
-                <label for="inputAlamat" class="fw-bold">Alamat Dokter</label>
-                <input type="text" class="form-control" name="alamat" id="inputAlamat" placeholder="Alamat Dokter" value="<?php echo $alamat ?>">
-            </div>
+if (isset($_GET['aksi'])) {
+    if ($_GET['aksi'] == 'hapus') {
+        $hapus = mysqli_query($mysqli, "DELETE FROM dokter WHERE id = '" . $_GET['id'] . "'");
+    }
 
-            <div class="form-group">
-                <label for="inputNoHP" class="fw-bold">Nomor HP</label>
-                <input type="text" class="form-control" name="no_hp" id="inputNoHP" placeholder="Nomor HP" value="<?php echo $no_hp ?>">
-            </div>
-
-            <div class="form-group mt-3">
-                <button type="submit" class="btn btn-primary rounded-pill px-3" name="simpan">Simpan</button>
-            </div>
-        </form>
-
-        <!-- Tabel Daftar Dokter -->
-        <table class="table mt-4">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Nama Dokter</th>
-                    <th>Alamat Dokter</th>
-                    <th>Nomor HP</th>
-                    <th>Aksi</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php
-                $result = mysqli_query($mysqli, "SELECT * FROM dokter");
-                $no = 1;
-                while ($data = mysqli_fetch_array($result)) {
-                ?>
-                    <tr>
-                        <td><?php echo $no++ ?></td>
-                        <td><?php echo $data['nama'] ?></td>
-                        <td><?php echo $data['alamat'] ?></td>
-                        <td><?php echo $data['no_hp'] ?></td>
-                        <td>
-                            <a class="btn btn-success rounded-pill px-3" href="dokter.php?id=<?php echo $data['id'] ?>">Ubah</a>
-                            <a class="btn btn-danger rounded-pill px-3" href="proses_dokter.php?id=<?php echo $data['id'] ?>&aksi=hapus">Hapus</a>
-                        </td>
-                    </tr>
-                <?php
-                }
-                ?>
-            </tbody>
-        </table>
-    </div>
-</body>
-</html>
+    echo "<script> 
+            document.location='index.php?page=dokter';
+            </script>";
+}
+?>
